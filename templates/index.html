@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered phishing email detector">
+  <title>PhishGuard AI | Phishing Email Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-icon">🛡</div>
+      <div>
+        <div class="brand-name">PhishGuard <span>AI</span></div>
+        <div class="brand-subtitle">Phishing Email Detector</div>
+      </div>
+    </div>
+    <div class="status-pill" id="systemStatus"><span></span> Checking model...</div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-badge">AI-POWERED EMAIL SECURITY</div>
+      <h1>Is this email <span>safe?</span></h1>
+      <p>Paste an email below and let the machine-learning model analyze it for phishing signals.</p>
+    </section>
+
+    <section class="workspace">
+      <div class="card input-card">
+        <div class="card-header">
+          <div>
+            <h2>Analyze Email</h2>
+            <p>Paste the complete email text for the best result.</p>
+          </div>
+          <button class="ghost-btn" id="sampleBtn">Try Sample</button>
+        </div>
+
+        <textarea id="emailInput" maxlength="100000" placeholder="Paste suspicious email content here...\n\nExample:\nDear Customer,\nYour account has been suspended. Click here to verify your account immediately..."></textarea>
+
+        <div class="input-footer">
+          <span id="charCount">0 characters</span>
+          <button class="clear-btn" id="clearBtn">Clear</button>
+          <button class="analyze-btn" id="analyzeBtn"><span>Analyze Email</span><span>→</span></button>
+        </div>
+        <div class="error-box" id="errorBox"></div>
+      </div>
+
+      <div class="card result-card" id="resultCard">
+        <div class="result-placeholder" id="placeholder">
+          <div class="shield-large">🛡</div>
+          <h2>Ready to analyze</h2>
+          <p>Your prediction, confidence score, probabilities, and suspicious signals will appear here.</p>
+        </div>
+
+        <div class="result-content hidden" id="resultContent">
+          <div class="result-top">
+            <div>
+              <div class="eyebrow">MODEL VERDICT</div>
+              <h2 id="predictionText">SAFE</h2>
+            </div>
+            <div class="verdict-icon" id="verdictIcon">✓</div>
+          </div>
+
+          <div class="confidence-box">
+            <div class="confidence-label"><span>Phishing probability</span><strong id="phishingProbability">0%</strong></div>
+            <div class="progress"><div id="progressBar"></div></div>
+            <div class="confidence-note">Decision threshold: <span id="threshold">44%</span></div>
+          </div>
+
+          <div class="prob-grid">
+            <div class="prob-item safe"><span>Safe probability</span><strong id="safeProbability">0%</strong></div>
+            <div class="prob-item phishing"><span>Phishing probability</span><strong id="phishingProbability2">0%</strong></div>
+          </div>
+
+          <div class="signals">
+            <div class="section-title">Detected signals</div>
+            <div class="signal-list" id="signalList"></div>
+          </div>
+
+          <div class="keyword-section">
+            <div class="section-title">Matched keywords</div>
+            <div class="keywords" id="keywords"></div>
+          </div>
+
+          <div class="disclaimer">This is an ML-based security aid, not a guarantee. Do not open links or attachments in suspicious emails.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <div class="info-card"><div class="info-number">01</div><h3>Paste</h3><p>Copy the email body and paste it into the analyzer.</p></div>
+      <div class="info-card"><div class="info-number">02</div><h3>Analyze</h3><p>Your Flask API sends the text to the trained ML detector.</p></div>
+      <div class="info-card"><div class="info-number">03</div><h3>Review</h3><p>Check the verdict, probabilities, and suspicious signals.</p></div>
+    </section>
+  </main>
+
+  <footer>PhishGuard AI · Machine-learning phishing detection demo</footer>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

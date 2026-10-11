@@ -7,6 +7,7 @@ import os
 from sklearn.base import BaseEstimator, TransformerMixin
 
 app = Flask(__name__)
+handler = app
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "model")
@@ -68,8 +69,98 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
         return features
 
 
+
+class PhishingEmailDetector:
+    def __init__(self, model, preprocessor, threshold=0.5):
+        self.model = model
+        self.preprocessor = preprocessor
+        self.threshold = threshold
+        self.text_preprocessor = TextPreprocessor()
+
+    def predict(self, email_text, return_confidence=False):
+        processed_text = self.text_preprocessor._clean_text(email_text)
+        features = self.text_preprocessor.extract_features(processed_text)
+        input_data = pd.DataFrame([{
+            'processed_text': processed_text,
+            **features
+        }])
+        transformed_input = self.preprocessor.transform(input_data)
+        probabilities = self.model.predict_proba(transformed_input)[0]
+        confidence = probabilities[1]
+        prediction = 1 if confidence >= self.threshold else 0
+
+        if return_confidence:
+            return prediction, confidence, probabilities
+
+        return prediction
+
+    def predict_batch(self, email_texts, return_confidence=False):
+        predictions = []
+        confidences = []
+
+        for text in email_texts:
+            if return_confidence:
+                pred, conf, _ = self.predict(
+                    text,
+                    return_confidence=True
+                )
+                predictions.append(pred)
+                confidences.append(conf)
+            else:
+                predictions.append(self.predict(text))
+
+        if return_confidence:
+            return np.array(predictions), np.array(confidences)
+
+        return np.array(predictions)
+
+    def set_threshold(self, new_threshold):
+        self.threshold = new_threshold
+
+    def explain_prediction(self, email_text):
+        prediction, confidence, probabilities = self.predict(
+            email_text,
+            return_confidence=True
+        )
+
+        explanation = {
+            'prediction': 'PHISHING' if prediction == 1 else 'SAFE',
+            'confidence': confidence,
+            'safe_probability': probabilities[0],
+            'phishing_probability': probabilities[1],
+            'threshold_used': self.threshold
+        }
+
+        processed_text = self.text_preprocessor._clean_text(email_text)
+        features = self.text_preprocessor.extract_features(processed_text)
+
+        explanation['features'] = {
+            'keyword_count': features['keyword_count'],
+            'text_length': features['text_length'],
+            'url_count': features['url_count'],
+            'suspicious_patterns': []
+        }
+
+        if features['keyword_count'] > 3:
+            explanation['features']['suspicious_patterns'].append(
+                'High keyword count'
+            )
+
+        if features['url_count'] > 1:
+            explanation['features']['suspicious_patterns'].append(
+                'Multiple URLs'
+            )
+
+        if features['dollar_count'] > 0:
+            explanation['features']['suspicious_patterns'].append(
+                'Financial references'
+            )
+
+        return explanation
+
+
 # Load the saved detector.
-# The class above MUST be defined before this line.
+# The classes above MUST be defined before this line.
 import sys
 setattr(sys.modules['__main__'], 'TextPreprocessor', TextPreprocessor)
 setattr(sys.modules['__main__'], 'PhishingEmailDetector', PhishingEmailDetector)

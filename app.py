@@ -70,6 +70,10 @@ class TextPreprocessor(BaseEstimator, TransformerMixin):
 
 # Load the saved detector.
 # The class above MUST be defined before this line.
+import sys
+setattr(sys.modules['__main__'], 'TextPreprocessor', TextPreprocessor)
+setattr(sys.modules['__main__'], 'PhishingEmailDetector', PhishingEmailDetector)
+
 try:
     detector = joblib.load(DETECTOR_PATH)
     saved_preprocessor = joblib.load(PREPROCESSOR_PATH)

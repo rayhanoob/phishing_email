@@ -6,13 +6,17 @@ import re
 import os
 from sklearn.base import BaseEstimator, TransformerMixin
 
-app = Flask(__name__)
-handler = app
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "model")
 DETECTOR_PATH = os.path.join(MODEL_DIR, "phishing_detector.pkl")
 PREPROCESSOR_PATH = os.path.join(MODEL_DIR, "preprocessor.pkl")
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
+handler = app
 
 
 # IMPORTANT:
